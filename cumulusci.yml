@@ -1,0 +1,22 @@
+minimum_cumulusci_version: '3.67.1'
+project:
+    name: Accure-taxStatus
+    package:
+        name: Accure-taxStatus
+        api_version: '55.0'
+    git:
+        default_branch: 'main'
+    source_format: sfdx
+
+tasks:
+    robot:
+        options:
+            suites: robot/Accure-taxStatus/tests
+            options:
+                outputdir: robot/Accure-taxStatus/results
+
+    robot_testdoc:
+        options:
+            path: robot/Accure-taxStatus/tests
+            output: robot/Accure-taxStatus/doc/Accure-taxStatus_tests.html
+
