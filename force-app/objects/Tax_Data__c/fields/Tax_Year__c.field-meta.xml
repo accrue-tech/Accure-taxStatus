@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tax_Year__c</fullName>
+    <description>Tax_Year</description>
+    <externalId>false</externalId>
+    <label>Tax Year</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>2000</fullName>
+                <default>false</default>
+                <label>2000</label>
+            </value>
+            <value>
+                <fullName>2001</fullName>
+                <default>false</default>
+                <label>2001</label>
+            </value>
+            <value>
+                <fullName>2002</fullName>
+                <default>false</default>
+                <label>2002</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
