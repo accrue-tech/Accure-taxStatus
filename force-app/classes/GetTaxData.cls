@@ -4,16 +4,21 @@ global class GetTaxData {
     @InvocableMethod
     global static List<FlowOutput> execute(List<FlowInput> inputs) {
         FlowOutput output = new FlowOutput();
+        //Getting API Information from Tax Status Detail Metadata =    
+        accrue__Tax_Status_API_Detail__mdt token = accrue__Tax_Status_API_Detail__mdt.getInstance('Token');
+        accrue__Tax_Status_API_Detail__mdt individual = accrue__Tax_Status_API_Detail__mdt.getInstance('Individual');
+        accrue__Tax_Status_API_Detail__mdt business = accrue__Tax_Status_API_Detail__mdt.getInstance('Business');
+        
         try{
             FlowInput input = inputs.get(0);
             String recordId = input.recordId;
             HttpRequest request = new HttpRequest();
             request.setMethod('POST');
-            request.setHeader('euid', 'HQNZD5CQX8YOV96');
-            request.setEndpoint('https://uat-taxstatus-api.auth.us-east-1.amazoncognito.com/oauth2/token');
+            request.setHeader('euid', token.accrue__Company_Id__c);
+            request.setEndpoint(token.accrue__Endpoint__c);
             String payload = 'grant_type=' + EncodingUtil.urlEncode('client_credentials', 'UTF-8');
-            payload = payload + '&client_id=' + EncodingUtil.urlEncode('4tdfpgidcvi16bhdr0b4id8ecv', 'UTF-8');
-            payload = payload + '&client_secret=' + EncodingUtil.urlEncode('1jeg2r0danamvbmoavs4dadgeld8oqh5mkk6ngig1p5mnbl84co8', 'UTF-8');
+            payload = payload + '&client_id=' + EncodingUtil.urlEncode(token.accrue__Client_Id__c, 'UTF-8');
+            payload = payload + '&client_secret=' + EncodingUtil.urlEncode(token.accrue__Client_Secret__c, 'UTF-8');
             payload = payload + '&scope=' + EncodingUtil.urlEncode('taxstatus-uat/uat-read', 'UTF-8');
             request.setBody(payload);
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -21,24 +26,26 @@ global class GetTaxData {
             HttpResponse response = http.send(request);
             System.debug(response.getBody());
             JSONParse jsonParser = new JSONParse(response.getBody());
-            String token = jsonParser.get('access_token').getStringValue();
+            String accessToken = jsonParser.get('access_token').getStringValue();
             request = new HttpRequest();
             request.setMethod('POST');
-            request.setHeader('euid', 'HQNZD5CQX8YOV96');
-            request.setHeader('Authorization', 'Bearer ' + token);
+            request.setHeader('euid', token.accrue__Company_Id__c);
+            request.setHeader('Authorization', 'Bearer ' + accessToken);
             system.debug('recordId '+recordId);
-            Account acc = [SELECT id,accrue__TIN__pc,IsPersonAccount FROM Account WHERE Id =:recordId LIMIT 1];
+            Account acc = [SELECT id,accrue__TIN__pc,accrue__TIN__c,IsPersonAccount FROM Account WHERE Id =:recordId LIMIT 1];
+            system.debug('token.accrue__Company_Id__c '+token.accrue__Company_Id__c+'==>'+acc.accrue__TIN__pc+'==>'+acc.accrue__TIN__c);
             if(acc.IsPersonAccount)
-                request.setEndpoint('https://dnh8ze7vli.execute-api.us-east-1.amazonaws.com/uat/api/taxdata/v1/individual');
+                request.setEndpoint(individual.accrue__Endpoint__c);
             else 
-                request.setEndpoint('https://dnh8ze7vli.execute-api.us-east-1.amazonaws.com/uat/api/taxdata/v1/business');
+                request.setEndpoint(business.accrue__Endpoint__c);
             JSONGenerator gen = JSON.createGenerator(true);
             gen.writeStartObject();
-            gen.writeStringField('companyId', 'HQNZD5CQX8YOV96');
+            system.debug('token.accrue__Company_Id__c '+token.accrue__Company_Id__c+'==>'+acc.accrue__TIN__pc+'==>'+acc.accrue__TIN__c);
+            gen.writeStringField('companyId', token.accrue__Company_Id__c);
             if(acc.IsPersonAccount)
                 gen.writeStringField('ssn', acc.accrue__TIN__pc);
             else 
-                gen.writeStringField('ein', acc.accrue__TIN__pc);
+                gen.writeStringField('ein', acc.accrue__TIN__c);
             
             gen.writeEndObject();
             request.setBody(gen.getAsString());
@@ -84,14 +91,19 @@ global class GetTaxData {
                  tempTaxData.accrue__Lien_Date__c*/
                  tempTaxData.accrue__Filing_Date__c = taxDataInfo.FileDate;
                  tempTaxData.accrue__Update_Date__c = taxDataInfo.UpdateDate;
-                 //tempTaxData.accrue__Form_Type__c
+                 tempTaxData.accrue__Form_Type__c = taxDataInfo.FormType;
                  tempTaxData.accrue__Form__c = taxDataInfo.Form;
                  string period = String.valueOf(taxDataInfo.Period);
-                 tempTaxData.accrue__Tax_Quarter__c = mapQuarter.get(period.substring(5));
+                 system.debug(period.substring(5));
+                 system.debug(mapQuarter.get(period.substring(4)));
+                 tempTaxData.accrue__Tax_Quarter__c = mapQuarter.get(period.substring(4));
                  tempTaxData.accrue__Tax_Year__c = period.substring(0,4);
                  //tempTaxData.accrue__CompanyId__c
                  tempTaxData.accrue__Relationship__c = recordId;
-                 tempTaxData.accrue__TIN__c = acc.accrue__TIN__pc;
+                	system.debug(acc.IsPersonAccount?acc.accrue__TIN__pc:acc.accrue__TIN__c);
+                system.debug(acc.IsPersonAccount);
+                system.debug(acc.accrue__TIN__c);
+                 tempTaxData.accrue__TIN__c = acc.IsPersonAccount?acc.accrue__TIN__pc:acc.accrue__TIN__c;
                 listTaxDataToInsert.add(tempTaxData);
             }
             insert listTaxDataToInsert;

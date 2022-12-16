@@ -6,7 +6,9 @@ global class TaxDataInfo {
     @InvocableVariable
     @AuraEnabled global Integer Period; //200012
     @InvocableVariable
-    @AuraEnabled global String Form;    //ANNUAL
+    @AuraEnabled global String Form;    //1040
+    @InvocableVariable
+    @AuraEnabled global String FormTYpe;    //ACTR
     @InvocableVariable
     @AuraEnabled global String UpdateDate;  //06/13/2021
     @InvocableVariable
@@ -16,7 +18,7 @@ global class TaxDataInfo {
     @InvocableVariable
     @AuraEnabled global Integer AGI;    //2599
     @InvocableVariable
-    @AuraEnabled global Integer IRSBalance; //0
+    @AuraEnabled global Decimal IRSBalance; //0
     @InvocableVariable
     @AuraEnabled global String FileDate;    //05/07/2001
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Consent_Status__c</fullName>
+    <externalId>false</externalId>
+    <label>Consent Status</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Requested to Customer</fullName>
+                <default>false</default>
+                <label>Requested to Customer</label>
+            </value>
+            <value>
+                <fullName>Authorized by Customer</fullName>
+                <default>false</default>
+                <label>Authorized by Customer</label>
+            </value>
+            <value>
+                <fullName>Submitted to TaxStatus</fullName>
+                <default>false</default>
+                <label>Submitted to TaxStatus</label>
+            </value>
+            <value>
+                <fullName>Processing by TaxStatus</fullName>
+                <default>false</default>
+                <label>Processing by TaxStatus</label>
+            </value>
+            <value>
+                <fullName>Approved by IRS</fullName>
+                <default>false</default>
+                <label>Approved by IRS</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

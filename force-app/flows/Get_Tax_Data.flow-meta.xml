@@ -3,12 +3,12 @@
     <actionCalls>
         <name>accrue_GetTaxData</name>
         <label>accrue_GetTaxData</label>
-        <locationX>50</locationX>
+        <locationX>182</locationX>
         <locationY>398</locationY>
         <actionName>GetTaxData</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>Get_Tax_Data</targetReference>
+            <targetReference>Get_Tax_Data_Records</targetReference>
         </connector>
         <flowTransactionModel>Automatic</flowTransactionModel>
         <inputParameters>
@@ -19,11 +19,158 @@
         </inputParameters>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
+    <actionCalls>
+        <name>accrue_GetTranscriptDetails</name>
+        <label>accrue__GetTranscriptDetails</label>
+        <locationX>270</locationX>
+        <locationY>2486</locationY>
+        <actionName>GetTranscriptDetails</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Loop_Through_Selected_Tax_Data</targetReference>
+        </connector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>recordId</name>
+            <value>
+                <elementReference>Loop_Through_Selected_Tax_Data.Id</elementReference>
+            </value>
+        </inputParameters>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>accrue_GetTranscripts</name>
+        <label>accrue__GetTranscripts</label>
+        <locationX>182</locationX>
+        <locationY>1334</locationY>
+        <actionName>GetTranscripts</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Count_Records_To_Delete</targetReference>
+        </connector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>recordId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
     <apiVersion>56.0</apiVersion>
+    <assignments>
+        <name>Assign_Tax_Data_To_Delete</name>
+        <label>Assign Tax Data To Delete</label>
+        <locationX>182</locationX>
+        <locationY>758</locationY>
+        <assignmentItems>
+            <assignToReference>TaxDataToDelete</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Tax_Data_Records</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Over_Tax_Data</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assigning_Other_Records</name>
+        <label>Assigning Other Records</label>
+        <locationX>270</locationX>
+        <locationY>1118</locationY>
+        <assignmentItems>
+            <assignToReference>TaxDataToDelete</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Remove_Selected_Records</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Over_Tax_Data</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Count_Records_To_Delete</name>
+        <label>Count Records To Delete</label>
+        <locationX>182</locationX>
+        <locationY>1454</locationY>
+        <assignmentItems>
+            <assignToReference>NumberOfRecords</assignToReference>
+            <operator>AssignCount</operator>
+            <value>
+                <elementReference>TaxDataToDelete</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_Tax_Data_List</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>SelectedIdAssignment</name>
+        <label>SelectedIdAssignment</label>
+        <locationX>270</locationX>
+        <locationY>2030</locationY>
+        <assignmentItems>
+            <assignToReference>SelectedIdCollection</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Through_Selected_Records.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Through_Selected_Records</targetReference>
+        </connector>
+    </assignments>
+    <collectionProcessors>
+        <name>Remove_Selected_Records</name>
+        <elementSubtype>FilterCollectionProcessor</elementSubtype>
+        <label>Remove Selected Records</label>
+        <locationX>270</locationX>
+        <locationY>998</locationY>
+        <assignNextValueToReference>currentItem_Remove_Selected_Records_0</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
+        <collectionReference>TaxDataToDelete</collectionReference>
+        <conditionLogic>and</conditionLogic>
+        <conditions>
+            <leftValueReference>currentItem_Remove_Selected_Records_0.Id</leftValueReference>
+            <operator>NotEqualTo</operator>
+            <rightValue>
+                <elementReference>Loop_Over_Tax_Data.Id</elementReference>
+            </rightValue>
+        </conditions>
+        <connector>
+            <targetReference>Assigning_Other_Records</targetReference>
+        </connector>
+    </collectionProcessors>
+    <decisions>
+        <name>Check_Tax_Data_List</name>
+        <label>Check Tax Data List</label>
+        <locationX>182</locationX>
+        <locationY>1574</locationY>
+        <defaultConnector>
+            <targetReference>Loop_Through_Selected_Records</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Contains_Records</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>NumberOfRecords</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Delete_Tax_Data</targetReference>
+            </connector>
+            <label>Contains Records</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Check_TIN</name>
         <label>Check TIN</label>
-        <locationX>182</locationX>
+        <locationX>336</locationX>
         <locationY>278</locationY>
         <defaultConnector>
             <targetReference>TIN_Not_Present</targetReference>
@@ -47,6 +194,48 @@
     </decisions>
     <interviewLabel>Get Tax Data {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Get Tax Data</label>
+    <loops>
+        <name>Loop_Over_Tax_Data</name>
+        <label>Loop Over Tax Data</label>
+        <locationX>182</locationX>
+        <locationY>878</locationY>
+        <collectionReference>DatatableStandard.selectedRows</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Remove_Selected_Records</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>accrue_GetTranscripts</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>Loop_Through_Selected_Records</name>
+        <label>Loop Through Selected Records</label>
+        <locationX>182</locationX>
+        <locationY>1910</locationY>
+        <collectionReference>DatatableStandard.selectedRows</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>SelectedIdAssignment</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Get_Selected_Tax_Data</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>Loop_Through_Selected_Tax_Data</name>
+        <label>Loop Through Selected Tax Data</label>
+        <locationX>182</locationX>
+        <locationY>2366</locationY>
+        <collectionReference>DatatableStandard.selectedRows</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>accrue_GetTranscriptDetails</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Select_Rows</targetReference>
+        </noMoreValuesConnector>
+    </loops>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -66,10 +255,20 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
+    <recordDeletes>
+        <name>Delete_Tax_Data</name>
+        <label>Delete Tax Data</label>
+        <locationX>50</locationX>
+        <locationY>1694</locationY>
+        <connector>
+            <targetReference>Loop_Through_Selected_Records</targetReference>
+        </connector>
+        <inputReference>TaxDataToDelete</inputReference>
+    </recordDeletes>
     <recordLookups>
         <name>Get_Relationship</name>
         <label>Get Relationship</label>
-        <locationX>182</locationX>
+        <locationX>336</locationX>
         <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -89,40 +288,194 @@
             <field>TIN__pc</field>
         </outputAssignments>
     </recordLookups>
+    <recordLookups>
+        <name>Get_Selected_Tax_Data</name>
+        <label>Get Selected Tax Data</label>
+        <locationX>182</locationX>
+        <locationY>2246</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Through_Selected_Tax_Data</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>In</operator>
+            <value>
+                <elementReference>SelectedIdCollection</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Tax_Data__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Tax_Data_Records</name>
+        <label>Get Tax Data Records</label>
+        <locationX>182</locationX>
+        <locationY>518</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Tax_Data</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Relationship__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Tax_Data__c</object>
+        <sortField>Tax_Year__c</sortField>
+        <sortOrder>Desc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <screens>
         <name>Get_Tax_Data</name>
         <label>Get Tax Data</label>
-        <locationX>50</locationX>
-        <locationY>518</locationY>
+        <locationX>182</locationX>
+        <locationY>638</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Assign_Tax_Data_To_Delete</targetReference>
+        </connector>
         <fields>
             <name>DisplayResponse</name>
-            <fieldText>&lt;p&gt;{!accrue_GetTaxData.response}&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 20px; background-color: rgb(255, 255, 255);&quot;&gt;Select tax periods and forms to get their transcript(s).&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 18px; background-color: rgb(255, 255, 255);&quot;&gt;&lt;span class=&quot;ql-cursor&quot;&gt;﻿&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
+        <fields>
+            <name>DatatableStandard</name>
+            <dataTypeMappings>
+                <typeName>T</typeName>
+                <typeValue>Tax_Data__c</typeValue>
+            </dataTypeMappings>
+            <extensionName>flowruntime:datatable</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Data Table</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>selectionMode</name>
+                <value>
+                    <stringValue>MULTI_SELECT</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>minRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableData</name>
+                <value>
+                    <elementReference>Get_Tax_Data_Records</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columns</name>
+                <value>
+                    <stringValue>[{&quot;apiName&quot;:&quot;accrue__Tax_Year__c&quot;,&quot;guid&quot;:&quot;column-1f3f&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Tax Year&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Tax_Quarter__c&quot;,&quot;guid&quot;:&quot;column-7db1&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Tax Quarter&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Form__c&quot;,&quot;guid&quot;:&quot;column-b7a8&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Form&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Form_Type__c&quot;,&quot;guid&quot;:&quot;column-e069&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:3,&quot;label&quot;:&quot;Form Type&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Name&quot;,&quot;guid&quot;:&quot;column-11ce&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:4,&quot;label&quot;:&quot;Tax Data Name&quot;,&quot;type&quot;:&quot;text&quot;}]</stringValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+        </fields>
+        <nextOrFinishButtonLabel>Get Transcript</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Select_Rows</name>
+        <label>Select Rows</label>
+        <locationX>182</locationX>
+        <locationY>2702</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>TranscriptFetchMessage</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 20px;&quot;&gt;Click on a record to view transcript data.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>TranscriptMessage</name>
+            <dataTypeMappings>
+                <typeName>T</typeName>
+                <typeValue>Tax_Data__c</typeValue>
+            </dataTypeMappings>
+            <extensionName>flowruntime:datatable</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Data Table</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>selectionMode</name>
+                <value>
+                    <stringValue>NO_SELECTION</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>minRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableData</name>
+                <value>
+                    <elementReference>Get_Selected_Tax_Data</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columns</name>
+                <value>
+                    <stringValue>[{&quot;apiName&quot;:&quot;accrue__Tax_Data_Record__c&quot;,&quot;guid&quot;:&quot;column-63bb&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Tax Data&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Tax Data Record&quot;,&quot;type&quot;:&quot;customRichText&quot;},{&quot;apiName&quot;:&quot;accrue__Transcript_Link__c&quot;,&quot;guid&quot;:&quot;column-96e2&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Transcript Link&quot;,&quot;type&quot;:&quot;customRichText&quot;},{&quot;apiName&quot;:&quot;accrue__Tax_Year__c&quot;,&quot;guid&quot;:&quot;column-d567&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Tax Year&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Tax_Quarter__c&quot;,&quot;guid&quot;:&quot;column-9328&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:3,&quot;label&quot;:&quot;Tax Quarter&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Form__c&quot;,&quot;guid&quot;:&quot;column-3df3&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:4,&quot;label&quot;:&quot;Form&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Form_Type__c&quot;,&quot;guid&quot;:&quot;column-4761&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:5,&quot;label&quot;:&quot;Form Type&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Filing_Date__c&quot;,&quot;guid&quot;:&quot;column-0504&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:6,&quot;label&quot;:&quot;Filing Date&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Filing_Status__c&quot;,&quot;guid&quot;:&quot;column-e0d1&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:7,&quot;label&quot;:&quot;Filing Status&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;accrue__Adjusted_Gross_Income__c&quot;,&quot;guid&quot;:&quot;column-4ed8&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:8,&quot;label&quot;:&quot;Adjusted Gross Income&quot;,&quot;type&quot;:&quot;currency&quot;},{&quot;apiName&quot;:&quot;accrue__IRS_Balance__c&quot;,&quot;guid&quot;:&quot;column-feb5&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:9,&quot;label&quot;:&quot;IRS Balance&quot;,&quot;type&quot;:&quot;currency&quot;}]</stringValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>ResetValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
     </screens>
     <screens>
         <name>TIN_Not_Present</name>
         <label>TIN Not Present</label>
-        <locationX>314</locationX>
+        <locationX>490</locationX>
         <locationY>398</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
         <fields>
             <name>TINNotPresent</name>
-            <fieldText>&lt;p&gt;TIN is not present on a relationship.&lt;/p&gt;&lt;p&gt;Please enter valid TIN and try again!&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;TIN is not present on a relationship.&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;Please enter valid TIN and try again!&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
+        <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>56</locationX>
+        <locationX>210</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Get_Relationship</targetReference>
@@ -130,11 +483,45 @@
     </start>
     <status>Active</status>
     <variables>
+        <name>currentItem_Remove_Selected_Records_0</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Tax_Data__c</objectType>
+    </variables>
+    <variables>
+        <name>NumberOfRecords</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
         <name>recordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>SelectedIdCollection</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>TaxDataToDelete</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Tax_Data__c</objectType>
     </variables>
     <variables>
         <name>varTaxStatus</name>
