@@ -12,17 +12,17 @@ global class GetTranscriptDetails {
     public static void insertData(String recordId) {
         
         //Getting API Information from Tax Status Detail Metadata =    
-        accrue__Tax_Status_API_Detail__mdt token = accrue__Tax_Status_API_Detail__mdt.getInstance('Token');
-        accrue__Tax_Status_API_Detail__mdt transcriptdetail = accrue__Tax_Status_API_Detail__mdt.getInstance('Transcriptdetail');
+        Tax_Status_API_Detail__mdt token = Tax_Status_API_Detail__mdt.getInstance('Token');
+        Tax_Status_API_Detail__mdt transcriptdetail = Tax_Status_API_Detail__mdt.getInstance('Transcriptdetail');
         
         try{
             HttpRequest request = new HttpRequest();
             request.setMethod('POST');
-            request.setHeader('euid', token.accrue__Company_Id__c);
-            request.setEndpoint(token.accrue__Endpoint__c);
+            request.setHeader('euid', token.Company_Id__c);
+            request.setEndpoint(token.Endpoint__c);
             String payload = 'grant_type=' + EncodingUtil.urlEncode('client_credentials', 'UTF-8');
-            payload = payload + '&client_id=' + EncodingUtil.urlEncode(token.accrue__Client_Id__c, 'UTF-8');
-            payload = payload + '&client_secret=' + EncodingUtil.urlEncode(token.accrue__Client_Secret__c, 'UTF-8');
+            payload = payload + '&client_id=' + EncodingUtil.urlEncode(token.Client_Id__c, 'UTF-8');
+            payload = payload + '&client_secret=' + EncodingUtil.urlEncode(token.Client_Secret__c, 'UTF-8');
             payload = payload + '&scope=' + EncodingUtil.urlEncode('taxstatus-uat/uat-read', 'UTF-8');
             request.setBody(payload);
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -33,20 +33,20 @@ global class GetTranscriptDetails {
             String access_token = jsonParser.get('access_token').getStringValue();
             request = new HttpRequest();
             request.setMethod('POST');
-            request.setHeader('euid', token.accrue__Company_Id__c);
+            request.setHeader('euid', token.Company_Id__c);
             request.setHeader('Authorization', 'Bearer ' + access_token);
             system.debug('recordId '+recordId);
-            accrue__Tax_Data__c taxData = [SELECT Id, accrue__Form_Type__c, accrue__Form__c, accrue__TIN__c, accrue__Tax_Quarter__c, accrue__Tax_Year__c FROM accrue__Tax_Data__c WHERE Id =:recordId LIMIT 1];
+            Tax_Data__c taxData = [SELECT Id, Form_Type__c, Form__c, TIN__c, Tax_Quarter__c, Tax_Year__c FROM Tax_Data__c WHERE Id =:recordId LIMIT 1];
             
-            request.setEndpoint(transcriptdetail.accrue__Endpoint__c);
+            request.setEndpoint(transcriptdetail.Endpoint__c);
             JSONGenerator gen = JSON.createGenerator(true);
             gen.writeStartObject();
-            system.debug('token.accrue__Company_Id__c '+token.accrue__Company_Id__c+'==>'+taxData.accrue__TIN__c+'==>'+taxData.accrue__Form_Type__c+'==>'+taxData.accrue__Form__c+'==>'+taxData.accrue__Tax_Year__c+mapQuarter.get(taxData.accrue__Tax_Quarter__c));
-            gen.writeStringField('companyId', token.accrue__Company_Id__c);
-            gen.writeStringField('tin', taxData.accrue__TIN__c);
-            gen.writeStringField('transcriptType', taxData.accrue__Form_Type__c);
-            gen.writeStringField('transcriptForm', taxData.accrue__Form__c);
-            gen.writeStringField('transcriptPeriod', taxData.accrue__Tax_Year__c+mapQuarter.get(taxData.accrue__Tax_Quarter__c));
+            system.debug('token.Company_Id__c '+token.Company_Id__c+'==>'+taxData.TIN__c+'==>'+taxData.Form_Type__c+'==>'+taxData.Form__c+'==>'+taxData.Tax_Year__c+mapQuarter.get(taxData.Tax_Quarter__c));
+            gen.writeStringField('companyId', token.Company_Id__c);
+            gen.writeStringField('tin', taxData.TIN__c);
+            gen.writeStringField('transcriptType', taxData.Form_Type__c);
+            gen.writeStringField('transcriptForm', taxData.Form__c);
+            gen.writeStringField('transcriptPeriod', taxData.Tax_Year__c+mapQuarter.get(taxData.Tax_Quarter__c));
             gen.writeEndObject();
             request.setBody(gen.getAsString());
             System.debug(gen.getAsString());
@@ -62,15 +62,15 @@ global class GetTranscriptDetails {
             TaxDataObject objtranscript = transcriptMap[0];
             cls_Data dat = objtranscript.Data[0];
             
-            List<accrue__Transcript_Detail__c> listtranscriptToUpdate = new List<accrue__Transcript_Detail__c>();
-            accrue__Transcript_Detail__c tempTranscriptDetail = new accrue__Transcript_Detail__c();
+            List<Transcript_Detail__c> listtranscriptToUpdate = new List<Transcript_Detail__c>();
+            Transcript_Detail__c tempTranscriptDetail = new Transcript_Detail__c();
             for(cls_Transactions trans: dat.Transactions){
-                tempTranscriptDetail = new accrue__Transcript_Detail__c();
-                tempTranscriptDetail.accrue__Amount__c = trans.Amount;
-                tempTranscriptDetail.accrue__Code__c = trans.Code;
-                tempTranscriptDetail.accrue__Date__c = trans.Date1;
-                tempTranscriptDetail.accrue__Description__c = trans.Desc1;
-                tempTranscriptDetail.accrue__Tax_Data__c = recordId;
+                tempTranscriptDetail = new Transcript_Detail__c();
+                tempTranscriptDetail.Amount__c = trans.Amount;
+                tempTranscriptDetail.Code__c = trans.Code;
+                tempTranscriptDetail.Date__c = trans.Date1;
+                tempTranscriptDetail.Description__c = trans.Desc1;
+                tempTranscriptDetail.Tax_Data__c = recordId;
                 system.debug(tempTranscriptDetail);
                 listtranscriptToUpdate.add(tempTranscriptDetail);
             }

@@ -1,6 +1,7 @@
 {
   "orgName": "Accure-taxStatus - Beta Test Org",
   "edition": "Developer",
+  "features": ["Communities", "PersonAccounts"],
   "settings": {
     "lightningExperienceSettings": {
       "enableS1DesktopEnabled": true

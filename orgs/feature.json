@@ -1,5 +1,6 @@
 {
   "orgName": "Accure-taxStatus - Feature Test Org",
+  "features": ["Communities", "PersonAccounts"],
   "edition": "Developer",
   "settings": {
     "lightningExperienceSettings": {

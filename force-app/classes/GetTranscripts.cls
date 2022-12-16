@@ -10,25 +10,25 @@ global class  GetTranscripts {
     //@future(callout=true)
     public static void makeCallout(String recordId) {
         //Getting API Information from Tax Status Detail Metadata =    
-        accrue__Tax_Status_API_Detail__mdt token = accrue__Tax_Status_API_Detail__mdt.getInstance('Token');
-        accrue__Tax_Status_API_Detail__mdt transcript = accrue__Tax_Status_API_Detail__mdt.getInstance('Transcript');
+        Tax_Status_API_Detail__mdt token = Tax_Status_API_Detail__mdt.getInstance('Token');
+        Tax_Status_API_Detail__mdt transcript = Tax_Status_API_Detail__mdt.getInstance('Transcript');
 		
         //Creating Transcript details for which pdf is to be created
-        List<accrue__Tax_Data__c> taxData = [SELECT Id, accrue__Form_Type__c, accrue__Form__c, accrue__TIN__c, accrue__Tax_Quarter__c, accrue__Tax_Year__c,accrue__Transcript_Path__c FROM accrue__Tax_Data__c WHERE accrue__Relationship__c  =:recordId];    
+        List<Tax_Data__c> taxData = [SELECT Id, Form_Type__c, Form__c, TIN__c, Tax_Quarter__c, Tax_Year__c,Transcript_Path__c FROM Tax_Data__c WHERE Relationship__c  =:recordId];    
          system.debug(taxData); 
-        Map<String,accrue__Tax_Data__c> taxDataMap = new Map<String,accrue__Tax_Data__c>();
+        Map<String,Tax_Data__c> taxDataMap = new Map<String,Tax_Data__c>();
         Set<Id> distributionId = new Set<Id>();
-        	String companyId = token.accrue__Company_Id__c;
-            String tin  = taxData[0].accrue__TIN__c;  
+        	String companyId = token.Company_Id__c;
+            String tin  = taxData[0].TIN__c;  
             Boolean needPDF  = true;
             List<Transcript> listTranscript = new List<Transcript>();  
-            for(accrue__Tax_Data__c objTaxData : taxData){
-                Transcript tempTranscript = new Transcript(objTaxData.accrue__Form_Type__c,objTaxData.accrue__Form__c,objTaxData.accrue__Tax_Year__c+mapQuarter.get(objTaxData.accrue__Tax_Quarter__c));   
+            for(Tax_Data__c objTaxData : taxData){
+                Transcript tempTranscript = new Transcript(objTaxData.Form_Type__c,objTaxData.Form__c,objTaxData.Tax_Year__c+mapQuarter.get(objTaxData.Tax_Quarter__c));   
                 system.debug(tempTranscript);
                 listTranscript.add(tempTranscript);
                 
                 //CReate Map to store Tax Data
-                taxDataMap.put(objTaxData.accrue__Form_Type__c+objTaxData.accrue__Form__c+objTaxData.accrue__Tax_Year__c+mapQuarter.get(objTaxData.accrue__Tax_Quarter__c),objTaxData);
+                taxDataMap.put(objTaxData.Form_Type__c+objTaxData.Form__c+objTaxData.Tax_Year__c+mapQuarter.get(objTaxData.Tax_Quarter__c),objTaxData);
             }
         	system.debug('taxDataMap'+taxDataMap);
             TranscriptFile objTF = new TranscriptFile(companyId, tin, needPDF,listTranscript);
@@ -38,11 +38,11 @@ global class  GetTranscripts {
             HttpRequest request = new HttpRequest();
             String jsonBody = JSON.serialize(objTF);
             request.setMethod('POST');
-            request.setHeader('euid', token.accrue__Company_Id__c);
-            request.setEndpoint(token.accrue__Endpoint__c);
+            request.setHeader('euid', token.Company_Id__c);
+            request.setEndpoint(token.Endpoint__c);
             String payload = 'grant_type=' + EncodingUtil.urlEncode('client_credentials', 'UTF-8');
-            payload = payload + '&client_id=' + EncodingUtil.urlEncode(token.accrue__Client_Id__c, 'UTF-8');
-            payload = payload + '&client_secret=' + EncodingUtil.urlEncode(token.accrue__Client_Secret__c, 'UTF-8');
+            payload = payload + '&client_id=' + EncodingUtil.urlEncode(token.Client_Id__c, 'UTF-8');
+            payload = payload + '&client_secret=' + EncodingUtil.urlEncode(token.Client_Secret__c, 'UTF-8');
             payload = payload + '&scope=' + EncodingUtil.urlEncode('taxstatus-uat/uat-read', 'UTF-8');
             request.setBody(payload);
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -53,9 +53,9 @@ global class  GetTranscripts {
             String accessToken = jsonParser.get('access_token').getStringValue();
             request = new HttpRequest();
             request.setMethod('POST');
-            request.setHeader('euid', token.accrue__Company_Id__c);
+            request.setHeader('euid', token.Company_Id__c);
             request.setHeader('Authorization', 'Bearer ' + accessToken);
-            request.setEndpoint(transcript.accrue__Endpoint__c);
+            request.setEndpoint(transcript.Endpoint__c);
             request.setBody(jsonBody);
         	System.debug(jsonBody);
             http = new Http();
@@ -81,8 +81,8 @@ global class  GetTranscripts {
                     insert conDis;
                     
                     //Getting tax data to update URL 
-                    accrue__Tax_Data__c tempTaxData = taxDataMap.get(t.FormType + t.Form + t.period) ;
-                    tempTaxData.accrue__Transcript_Path__c = conDis.DistributionPublicUrl;
+                    Tax_Data__c tempTaxData = taxDataMap.get(t.FormType + t.Form + t.period) ;
+                    tempTaxData.Transcript_Path__c = conDis.DistributionPublicUrl;
                     system.debug('Test@@'+conDis.Id);
                     distributionId.add(conDis.Id);
                     
@@ -94,8 +94,8 @@ global class  GetTranscripts {
         system.debug(distributionId);
         system.debug([SELECT DistributionPublicUrl from ContentDistribution WHERE ID IN:distributionId]);
         for(ContentDistribution key: [SELECT DistributionPublicUrl,Name from ContentDistribution WHERE ID IN:distributionId]){
-            accrue__Tax_Data__c tempTaxData = taxDataMap.get(Key.Name);
-            tempTaxData.accrue__Transcript_Path__c = key.DistributionPublicUrl;
+            Tax_Data__c tempTaxData = taxDataMap.get(Key.Name);
+            tempTaxData.Transcript_Path__c = key.DistributionPublicUrl;
             update tempTaxData;
         }
     }

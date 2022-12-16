@@ -5,8 +5,8 @@ global without sharing class GetConsentAPI {
       RestRequest req = RestContext.request;
         system.debug(req);
         system.debug(RestContext.request.params.get('x-api-key'));
-        accrue__Tax_Status_API_Detail__mdt apiKey = accrue__Tax_Status_API_Detail__mdt.getInstance('API_Key');
-        if(RestContext.request.params.get('x-api-key') == apiKey.accrue__API_Key__c){
+        Tax_Status_API_Detail__mdt apiKey = Tax_Status_API_Detail__mdt.getInstance('API_Key');
+        if(RestContext.request.params.get('x-api-key') == apiKey.API_Key__c){
         	Map<String, Object> params = (Map<String, Object>)JSON.deserializeUntyped(RestContext.request.requestBody.toString());
         Account accToUpdate;
         system.debug(params);
@@ -17,21 +17,21 @@ global without sharing class GetConsentAPI {
         system.debug(params.get('EIN'));
         String ein = (String)params.get('EIN');
         if (params.get('SSN')!=NULL){
-            for(Account acc : [SELECT Id,accrue__TIN__pc, accrue__Consent_Status__c FROM Account WHERE LastName=:lastName]){
-                if(acc.accrue__TIN__pc.right(4) == ssn.right(4)){
-                	acc.accrue__Consent_Status__c = 'Authorized by Customer';    
+            for(Account acc : [SELECT Id,TIN__pc, Consent_Status__c FROM Account WHERE LastName=:lastName]){
+                if(acc.TIN__pc.right(4) == ssn.right(4)){
+                	acc.Consent_Status__c = 'Authorized by Customer';    
                 accToUpdate = acc;    
                 }
-            	acc.accrue__Consent_Status__c = 'Authorized by Customer';    
+            	acc.Consent_Status__c = 'Authorized by Customer';    
                 accToUpdate = acc;
             }    
         } else if(params.get('EIN')!=NULL){
-            for(Account acc : [SELECT Id,accrue__TIN__pc, accrue__Consent_Status__c FROM Account WHERE LastName=:lastName]){
-            if(acc.accrue__TIN__c.right(4) == ein.right(4)){
-                acc.accrue__Consent_Status__c = 'Authorized by Customer';    
+            for(Account acc : [SELECT Id,TIN__pc, Consent_Status__c FROM Account WHERE LastName=:lastName]){
+            if(acc.TIN__c.right(4) == ein.right(4)){
+                acc.Consent_Status__c = 'Authorized by Customer';    
                 accToUpdate = acc;    
             }
-            acc.accrue__Consent_Status__c = 'Authorized by Customer';    
+            acc.Consent_Status__c = 'Authorized by Customer';    
             accToUpdate = acc;
             }
         }
