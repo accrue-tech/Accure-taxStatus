@@ -285,7 +285,7 @@
         <object>Account</object>
         <outputAssignments>
             <assignToReference>varTIN</assignToReference>
-            <field>TIN__pc</field>
+            <field>accrue__TIN__pc</field>
         </outputAssignments>
     </recordLookups>
     <recordLookups>

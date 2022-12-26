@@ -67,11 +67,11 @@ global class  GetTranscripts {
                     ContentVersion cv = createContentVersion(t.Transcript, t.FormType + '_' + t.Form + '_' +  t.period + '-transcript.pdf');
                     String cdId = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id].ContentDocumentId;
                     ContentDocumentLink cdl = createContentLink(cdId, recordId);
-                    FileExplorerFile__c file = new FileExplorerFile__c();
-                    file.Label__c = t.FormType + '_' + t.Form + '_' + t.period  + '-transcript.pdf';
+                    accrue__FileExplorerFile__c file = new accrue__FileExplorerFile__c();
+                    file.accrue__Label__c = t.FormType + '_' + t.Form + '_' + t.period  + '-transcript.pdf';
                     ContentDocument cd = [SELECT Id, ContentSize FROM ContentDocument WHERE Id = :cdId];
-                    file.ContentSize__c = cd.ContentSize;
-                    file.ContentDocumentId__c = cdId;
+                    file.accrue__ContentSize__c = cd.ContentSize;
+                    file.accrue__ContentDocumentId__c = cdId;
                     
                     /* Creating ContentDistribution record */
                     ContentDistribution conDis = new ContentDistribution();

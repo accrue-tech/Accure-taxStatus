@@ -32,20 +32,20 @@ global class GetTaxData {
             request.setHeader('euid', token.Company_Id__c);
             request.setHeader('Authorization', 'Bearer ' + accessToken);
             system.debug('recordId '+recordId);
-            Account acc = [SELECT id,TIN__pc,TIN__c,IsPersonAccount FROM Account WHERE Id =:recordId LIMIT 1];
-            system.debug('token.Company_Id__c '+token.Company_Id__c+'==>'+acc.TIN__pc+'==>'+acc.TIN__c);
+            Account acc = [SELECT id,accrue__TIN__pc,accrue__TIN__c,IsPersonAccount FROM Account WHERE Id =:recordId LIMIT 1];
+            system.debug('token.Company_Id__c '+token.Company_Id__c+'==>'+acc.accrue__TIN__pc+'==>'+acc.accrue__TIN__c);
             if(acc.IsPersonAccount)
                 request.setEndpoint(individual.Endpoint__c);
             else 
                 request.setEndpoint(business.Endpoint__c);
             JSONGenerator gen = JSON.createGenerator(true);
             gen.writeStartObject();
-            system.debug('token.Company_Id__c '+token.Company_Id__c+'==>'+acc.TIN__pc+'==>'+acc.TIN__c);
+            system.debug('token.Company_Id__c '+token.Company_Id__c+'==>'+acc.accrue__TIN__pc+'==>'+acc.accrue__TIN__c);
             gen.writeStringField('companyId', token.Company_Id__c);
             if(acc.IsPersonAccount)
-                gen.writeStringField('ssn', acc.TIN__pc);
+                gen.writeStringField('ssn', acc.accrue__TIN__pc);
             else 
-                gen.writeStringField('ein', acc.TIN__c);
+                gen.writeStringField('ein', acc.accrue__TIN__c);
             
             gen.writeEndObject();
             request.setBody(gen.getAsString());
@@ -100,10 +100,10 @@ global class GetTaxData {
                  tempTaxData.Tax_Year__c = period.substring(0,4);
                  //tempTaxData.CompanyId__c
                  tempTaxData.Relationship__c = recordId;
-                	system.debug(acc.IsPersonAccount?acc.TIN__pc:acc.TIN__c);
+                	system.debug(acc.IsPersonAccount?acc.accrue__TIN__pc:acc.accrue__TIN__c);
                 system.debug(acc.IsPersonAccount);
-                system.debug(acc.TIN__c);
-                 tempTaxData.TIN__c = acc.IsPersonAccount?acc.TIN__pc:acc.TIN__c;
+                system.debug(acc.accrue__TIN__c);
+                 tempTaxData.TIN__c = acc.IsPersonAccount?acc.accrue__TIN__pc:acc.accrue__TIN__c;
                 listTaxDataToInsert.add(tempTaxData);
             }
             insert listTaxDataToInsert;

@@ -168,11 +168,11 @@
         </outputAssignments>
         <outputAssignments>
             <assignToReference>varTIN</assignToReference>
-            <field>TIN__c</field>
+            <field>accrue__TIN__c</field>
         </outputAssignments>
         <outputAssignments>
             <assignToReference>varTINpc</assignToReference>
-            <field>TIN__pc</field>
+            <field>accrue__TIN__pc</field>
         </outputAssignments>
     </recordLookups>
     <screens>

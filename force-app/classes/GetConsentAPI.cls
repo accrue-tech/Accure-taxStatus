@@ -17,8 +17,8 @@ global without sharing class GetConsentAPI {
         system.debug(params.get('EIN'));
         String ein = (String)params.get('EIN');
         if (params.get('SSN')!=NULL){
-            for(Account acc : [SELECT Id,TIN__pc, Consent_Status__c FROM Account WHERE LastName=:lastName]){
-                if(acc.TIN__pc.right(4) == ssn.right(4)){
+            for(Account acc : [SELECT Id,accrue__TIN__pc, Consent_Status__c FROM Account WHERE LastName=:lastName]){
+                if(acc.accrue__TIN__pc.right(4) == ssn.right(4)){
                 	acc.Consent_Status__c = 'Authorized by Customer';    
                 accToUpdate = acc;    
                 }
@@ -26,8 +26,8 @@ global without sharing class GetConsentAPI {
                 accToUpdate = acc;
             }    
         } else if(params.get('EIN')!=NULL){
-            for(Account acc : [SELECT Id,TIN__pc, Consent_Status__c FROM Account WHERE LastName=:lastName]){
-            if(acc.TIN__c.right(4) == ein.right(4)){
+            for(Account acc : [SELECT Id,accrue__TIN__pc, Consent_Status__c FROM Account WHERE LastName=:lastName]){
+            if(acc.accrue__TIN__c.right(4) == ein.right(4)){
                 acc.Consent_Status__c = 'Authorized by Customer';    
                 accToUpdate = acc;    
             }

@@ -30,14 +30,14 @@ global class GetConsent {
             request.setHeader('euid',token.Company_Id__c);
             request.setHeader('Authorization', 'Bearer ' + accessToken);
             system.debug('recordId '+recordId);
-            Account acc = [SELECT TIN__c, Phone,PersonEmail,IsPersonAccount,TIN__pc, Id, Name, LastName, FirstName,
+            Account acc = [SELECT accrue__TIN__c, Phone,PersonEmail,IsPersonAccount,accrue__TIN__pc, Id, Name, LastName, FirstName,
                            PersonMailingStreet, PersonMailingCity, PersonMailingState, PersonMailingPostalCode,
                            BillingStreet, BillingCity, BillingState, BillingPostalCode FROM Account WHERE Id =:recordId LIMIT 1];
             request.setEndpoint(consent.Endpoint__c);
             JSONGenerator gen = JSON.createGenerator(true);
             gen.writeStartObject();
             gen.writeStringField('companyId', token.Company_Id__c);
-            gen.writeStringField('tin', acc.IsPersonAccount? acc.TIN__pc : acc.TIN__c);
+            gen.writeStringField('tin', acc.IsPersonAccount? acc.accrue__TIN__pc : acc.accrue__TIN__c);
             gen.writeStringField('isCompany', acc.IsPersonAccount? '0' : '1' );
             
 

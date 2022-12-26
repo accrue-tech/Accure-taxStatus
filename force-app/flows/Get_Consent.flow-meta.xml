@@ -36,7 +36,7 @@
             <name>TIN_Available</name>
             <conditionLogic>(1 AND 3) OR (2 AND NOT 3)</conditionLogic>
             <conditions>
-                <leftValueReference>vatTINpc</leftValueReference>
+                <leftValueReference>varTINpc</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -107,11 +107,11 @@
         </outputAssignments>
         <outputAssignments>
             <assignToReference>varTIN</assignToReference>
-            <field>TIN__c</field>
+            <field>accrue__TIN__c</field>
         </outputAssignments>
         <outputAssignments>
-            <assignToReference>vatTINpc</assignToReference>
-            <field>TIN__pc</field>
+            <assignToReference>varTINpc</assignToReference>
+            <field>accrue__TIN__pc</field>
         </outputAssignments>
     </recordLookups>
     <screens>
@@ -183,7 +183,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <name>vatTINpc</name>
+        <name>varTINpc</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>

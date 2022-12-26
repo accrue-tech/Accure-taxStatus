@@ -22,8 +22,6 @@
     <masterLabel>Tax Status</masterLabel>
     <redirectToCustomDomain>true</redirectToCustomDomain>
     <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
-    <siteAdmin>test-2igr00v9yvnn@example.com</siteAdmin>
-    <siteGuestRecordDefaultOwner>test-2igr00v9yvnn@example.com</siteGuestRecordDefaultOwner>
     <siteTemplate>SiteTemplate</siteTemplate>
     <siteType>Visualforce</siteType>
 </CustomSite>
